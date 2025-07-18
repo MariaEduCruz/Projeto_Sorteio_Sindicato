@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Painel do Sorteio - Operador</title>
+    <style>
+        body { 
+            font-family: sans-serif; 
+            text-align: center;      
+            padding: 20px;           
+            background-color: #f0f0f0; 
+        }
+        #area-sorteado { 
+            border: 2px dashed #007bff; 
+            padding: 15px; 
+            margin-top: 20px; 
+            display: none; 
+            background-color: white; 
+            text-align: left; 
+            max-width: 500px; 
+            margin-left: auto;
+            margin-right: auto;
+        }
+        button { 
+            font-size: 2em; 
+            padding: 20px 40px; 
+            cursor: pointer; 
+            background-color: #28a745; 
+            color: white; 
+            border: none; 
+            border-radius: 10px; 
+        }
+        button:hover {
+            background-color: #218838;
+            transform: scale(1.05);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            transition: all 0.2s ease-in-out;
+        }
+        h2 {
+            color: #007bff;
+        }
+        /* NOVO: Estilo para o contador */
+        #contador {
+            font-size: 1.2em;
+            font-weight: bold;
+            margin: 20px 0;
+        }
+    </style>
+</head>
+<body>
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" style="max-width: 800px; margin-bottom: 20px;">
+
+    <h1>Painel de Controle do Sorteio</h1>
+
+    <div id="contador">
+        Participantes Restantes: {{ restantes }} de {{ total }}
+    </div>
+
+    <button id="botaoSortear">SORTEAR AGORA!</button>
+
+    <div id="area-sorteado">
+        <h2>🎉 Sorteado! 🎉</h2>
+        <p><strong>Nome:</strong> <span id="nome"></span></p>
+        <p><strong>Matrícula:</strong> <span id="matricula"></span></p>
+        <p><strong>CPF:</strong> <span id="cpf"></span></p>
+        <p><strong>Celular:</strong> <span id="celular"></span></p>
+    </div>
+
+    <script>
+    document.getElementById('botaoSortear').addEventListener('click', () => {
+        document.getElementById('botaoSortear').disabled = true;
+
+        fetch('/sortear', { method: 'POST' })
+            .then(response => response.json())
+            .then(data => {
+                if (data.erro) {
+                    alert(data.erro);
+                    document.getElementById('botaoSortear').disabled = false;
+                    return;
+                }
+                
+                // --- O SOM TOCA AQUI! ---
+                // 1. Encontra o elemento de áudio que adicionamos no HTML
+                const somDo_Sorteio = document.getElementById('somSorteio');
+                // 2. Toca o som!
+                // Garante que o som sempre recomece do início
+                try {
+                    somDo_Sorteio.pause();
+                    somDo_Sorteio.currentTime = 0;
+                    somDo_Sorteio.play().catch(err => {
+                        console.warn("Erro ao tentar reproduzir som:", err);
+                    });
+                } catch (err) {
+                    console.error("Erro ao controlar áudio:", err);
+                }
+                
+                
+                document.getElementById('nome').textContent = data.sorteado.nome;
+                document.getElementById('matricula').textContent = data.sorteado.matricula;
+                document.getElementById('cpf').textContent = data.sorteado.cpf;
+                document.getElementById('celular').textContent = data.sorteado.celular;
+                document.getElementById('area-sorteado').style.display = 'block';
+
+                localStorage.setItem('sorteado_nome', data.sorteado.nome);
+                localStorage.setItem('sorteado_matricula', data.sorteado.matricula);
+
+                const contadorEl = document.getElementById('contador');
+                contadorEl.textContent = `Participantes Restantes: ${data.contagem.restantes} de ${data.contagem.total}`;
+
+                const listaHistorico = document.getElementById('lista-historico');
+                const novoItem = document.createElement('li');
+                novoItem.textContent = data.item_historico;
+                listaHistorico.appendChild(novoItem);
+
+                const msgSemHistorico = document.getElementById('msg-sem-historico');
+                if (msgSemHistorico) {
+                    msgSemHistorico.style.display = 'none';
+                }
+
+                document.getElementById('botaoSortear').disabled = false;
+            });
+    });
+</script>
+
+    <div style="margin-top: 40px; border-top: 2px solid #ccc; padding-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
+        <h2>Registro de Sorteados</h2>
+        <ul id="lista-historico">
+            {% if historico %}
+                {% for item in historico %}
+                    <li>{{ item }}</li>
+                {% endfor %}
+            {% else %}
+                <p id="msg-sem-historico">Nenhum sorteio realizado ainda.</p>
+            {% endif %}
+        </ul>
+    </div>
+
+    <audio id="somSorteio" src="{{ url_for('static', filename='som_sorteio.mp3') }}" preload="auto"></audio>
+
+</body>
+</html>

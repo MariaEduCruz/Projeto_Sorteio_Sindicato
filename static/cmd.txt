@@ -1,0 +1,6 @@
+deactivate
+python -m venv venv
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\venv\Scripts\activate
+pip install Flask pandas
+python app.py

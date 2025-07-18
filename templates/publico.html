@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <title>Sorteio - Resultado</title>
+    <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
+    
+    <style>
+        body { 
+            font-family: sans-serif; 
+            text-align: center; 
+            background: linear-gradient(135deg, #e0f7fa, #b2ebf2); 
+            color: #003366; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+            overflow: hidden;
+        }
+        #container { 
+            box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
+            max-width: 900px;
+            width: 90%;
+        }
+        h1 { font-size: 3em; }
+        #nome-publico {
+             font-size: 6em; 
+             font-weight: bold; 
+             color: #d32f2f;
+             margin: 20px 0;
+        }
+        #matricula-publico { font-size: 4em; margin: 10px 0; }
+        .pulsando {
+            animation: pulse 1s infinite;
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+    </style>
+</head>
+<body>
+    <div id="container">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" style="max-width: 800px; margin-bottom: 20px;">
+        
+        <h1>O grande sorteado(a) é...</h1>
+        <p id="nome-publico">Aguardando sorteio...</p>
+        <p id="matricula-publico"></p>
+    </div>
+
+    <audio id="somSorteio" src="{{ url_for('static', filename='som_sorteio.mp3') }}" preload="auto"></audio>
+
+    <script>
+        function fazerRevelacao() {
+            const nome = localStorage.getItem('sorteado_nome');
+            const matricula = localStorage.getItem('sorteado_matricula');
+
+            if (nome && matricula) {
+                const nomeEl = document.getElementById('nome-publico');
+                const matriculaEl = document.getElementById('matricula-publico');
+                const somSorteio = document.getElementById('somSorteio');
+
+                // Garante que o texto comece sem a classe de animação
+                nomeEl.classList.add('pulsando');
+                nomeEl.textContent = ".........";
+                matriculaEl.textContent = "";
+
+                somSorteio.play();
+
+                setTimeout(() => {
+                    somSorteio.pause();
+                    somSorteio.currentTime = 0;
+
+                    nomeEl.textContent = nome;
+                    // MUDANÇA: Adicionamos a classe para começar a pulsar
+                    nomeEl.classList.add('pulsando');
+
+                    matriculaEl.textContent = `Matrícula: ${matricula}`;
+                    confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
+
+                    setTimeout(() => {
+                        // MUDANÇA: Removemos a classe para parar de pulsar
+                        nomeEl.classList.remove('pulsando');
+                    }, 2000);
+
+                }, 2000);
+            }
+        }
+
+        window.addEventListener('storage', fazerRevelacao);
+        localStorage.removeItem('sorteado_nome');
+        localStorage.removeItem('sorteado_matricula');
+    </script>
+</body>
+</html>
