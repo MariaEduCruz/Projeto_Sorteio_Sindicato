@@ -29,7 +29,7 @@ Aplicação web desenvolvida em Python com o framework Flask para realizar sorte
     ```
 2.  **Navegue até o diretório do projeto:**
     ```bash
-    cd projeto-sorteio-sindicato
+    cd Projeto_Sorteio_Sindicato
     ```
 3.  **Crie e ative um ambiente virtual:**
     ```bash
