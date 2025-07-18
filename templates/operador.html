@@ -39,7 +39,6 @@
         h2 {
             color: #007bff;
         }
-        /* NOVO: Estilo para o contador */
         #contador {
             font-size: 1.2em;
             font-weight: bold;
@@ -67,23 +66,24 @@
     </div>
 
     <script>
+    // Adiciona evento de clique ao botão de sorteio
     document.getElementById('botaoSortear').addEventListener('click', () => {
+        // Desabilita o botão para evitar múltiplos cliques
         document.getElementById('botaoSortear').disabled = true;
 
+        // Faz a requisição para sortear um participante
         fetch('/sortear', { method: 'POST' })
             .then(response => response.json())
             .then(data => {
+                // Se houver erro (todos já sorteados), exibe alerta e reabilita o botão
                 if (data.erro) {
                     alert(data.erro);
                     document.getElementById('botaoSortear').disabled = false;
                     return;
                 }
                 
-                // --- O SOM TOCA AQUI! ---
-                // 1. Encontra o elemento de áudio que adicionamos no HTML
+                // Toca o som do sorteio
                 const somDo_Sorteio = document.getElementById('somSorteio');
-                // 2. Toca o som!
-                // Garante que o som sempre recomece do início
                 try {
                     somDo_Sorteio.pause();
                     somDo_Sorteio.currentTime = 0;
@@ -94,29 +94,34 @@
                     console.error("Erro ao controlar áudio:", err);
                 }
                 
-                
+                // Atualiza os dados do sorteado na tela
                 document.getElementById('nome').textContent = data.sorteado.nome;
                 document.getElementById('matricula').textContent = data.sorteado.matricula;
                 document.getElementById('cpf').textContent = data.sorteado.cpf;
                 document.getElementById('celular').textContent = data.sorteado.celular;
-                document.getElementById('area-sorteado').style.display = 'block';
+                document.getEl
 
+                // Salva informações do sorteado no localStorage
                 localStorage.setItem('sorteado_nome', data.sorteado.nome);
                 localStorage.setItem('sorteado_matricula', data.sorteado.matricula);
 
+                // Atualiza o contador de participantes restantes
                 const contadorEl = document.getElementById('contador');
                 contadorEl.textContent = `Participantes Restantes: ${data.contagem.restantes} de ${data.contagem.total}`;
 
+                // Atualiza o histórico de sorteados na lista
                 const listaHistorico = document.getElementById('lista-historico');
                 const novoItem = document.createElement('li');
                 novoItem.textContent = data.item_historico;
                 listaHistorico.appendChild(novoItem);
 
+                // Esconde a mensagem "Nenhum sorteio realizado ainda" se necessário
                 const msgSemHistorico = document.getElementById('msg-sem-historico');
                 if (msgSemHistorico) {
                     msgSemHistorico.style.display = 'none';
                 }
 
+                // Reabilita o botão para novo sorteio
                 document.getElementById('botaoSortear').disabled = false;
             });
     });

@@ -54,7 +54,9 @@
     <audio id="somSorteio" src="{{ url_for('static', filename='som_sorteio.mp3') }}" preload="auto"></audio>
 
     <script>
+        // Função responsável por revelar o sorteado na tela pública
         function fazerRevelacao() {
+            // Recupera nome e matrícula do sorteado do localStorage
             const nome = localStorage.getItem('sorteado_nome');
             const matricula = localStorage.getItem('sorteado_matricula');
 
@@ -63,26 +65,29 @@
                 const matriculaEl = document.getElementById('matricula-publico');
                 const somSorteio = document.getElementById('somSorteio');
 
-                // Garante que o texto comece sem a classe de animação
+                // Animação inicial: mostra pontos e limpa matrícula
                 nomeEl.classList.add('pulsando');
                 nomeEl.textContent = ".........";
                 matriculaEl.textContent = "";
 
+                // Toca o som do sorteio
                 somSorteio.play();
 
+                // Após 2 segundos, revela o nome e matrícula, para efeito dramático
                 setTimeout(() => {
                     somSorteio.pause();
                     somSorteio.currentTime = 0;
 
                     nomeEl.textContent = nome;
-                    // MUDANÇA: Adicionamos a classe para começar a pulsar
                     nomeEl.classList.add('pulsando');
 
                     matriculaEl.textContent = `Matrícula: ${matricula}`;
+
+                    // Dispara confete na tela
                     confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
 
+                    // Remove animação de pulsar após mais 2 segundos
                     setTimeout(() => {
-                        // MUDANÇA: Removemos a classe para parar de pulsar
                         nomeEl.classList.remove('pulsando');
                     }, 2000);
 
@@ -90,7 +95,10 @@
             }
         }
 
+        // Escuta alterações no localStorage para atualizar a tela pública automaticamente
         window.addEventListener('storage', fazerRevelacao);
+
+        // Limpa dados antigos do sorteado ao carregar a página
         localStorage.removeItem('sorteado_nome');
         localStorage.removeItem('sorteado_matricula');
     </script>
