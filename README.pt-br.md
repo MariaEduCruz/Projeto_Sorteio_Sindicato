@@ -25,7 +25,7 @@ Aplicação web desenvolvida em Python com o framework Flask para realizar sorte
 
 1.  **Clone o repositório:**
     ```bash
-    git clone [https://github.com/MariaEduCruz/sorteio-sindicato.git](https://github.com/MariaEduCruz/sorteio-sindicato.git)
+    git clone [https://github.com/MariaEduCruz/Projeto_Sorteio_Sindicato.git](https://github.com/MariaEduCruz/Projeto_Sorteio_Sindicato.git)
     ```
 2.  **Navegue até o diretório do projeto:**
     ```bash
