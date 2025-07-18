@@ -1,5 +1,6 @@
 # app.py - VERSÃO FINAL
 
+import os
 import pandas as pd
 from flask import Flask, jsonify, render_template
 
