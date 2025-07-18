@@ -29,7 +29,7 @@ This is a web application developed in Python using the Flask framework to condu
     ```
 2.  **Navigate to the project directory:**
     ```bash
-    cd projeto-sorteio-sindicato
+    cd Projeto_Sorteio_Sindicato
     ```
 3.  **Create and activate a virtual environment:**
     ```bash
