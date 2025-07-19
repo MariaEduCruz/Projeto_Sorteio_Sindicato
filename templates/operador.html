@@ -44,7 +44,6 @@
             font-weight: bold;
             margin: 20px 0;
         }
-        /* A animação de pulsar foi removida daqui, pois não é mais necessária */
     </style>
 </head>
 <body>
@@ -93,8 +92,6 @@
                     document.getElementById('botaoSortear').disabled = false;
                     return;
                 }
-
-                // --- REVELAÇÃO INSTANTÂNEA PARA O OPERADOR ---
                 
                 // Mostra a área do sorteado
                 document.getElementById('area-sorteado').style.display = 'block';
@@ -105,9 +102,19 @@
                 document.getElementById('cpf').textContent = data.sorteado.cpf;
                 document.getElementById('celular').textContent = data.sorteado.celular;
 
-                // Toca o som (opcional, pode remover se não quiser som no painel)
+                // Toca o som 
                 const somDo_Sorteio = document.getElementById('somSorteio');
-                somDo_Sorteio.play().catch(e => console.error("Erro ao tocar som:", e));
+
+                // Garante que o som sempre recomece do início
+                try {
+                    somDo_Sorteio.pause();
+                    somDo_Sorteio.currentTime = 0;
+                    somDo_Sorteio.play().catch(err => {
+                        console.warn("Erro ao tentar reproduzir som:", err);
+                    });
+                } catch (err) {
+                    console.error("Erro ao controlar áudio:", err);
+                }
                 
                 // Avisa a tela do público (que fará o suspense)
                 localStorage.setItem('sorteado_nome', data.sorteado.nome);
