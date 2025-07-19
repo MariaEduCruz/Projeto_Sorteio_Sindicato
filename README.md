@@ -25,11 +25,11 @@ This is a web application developed in Python using the Flask framework to condu
 
 1.  **Clone the repository:**
     ```bash
-    git clone [https://github.com/MariaEduCruz/sorteio-sindicato.git](https://github.com/MariaEduCruz/sorteio-sindicato.git)
+    git clone https://github.com/MariaEduCruz/Projeto_Sorteio_Sindicato.git
     ```
 2.  **Navigate to the project directory:**
     ```bash
-    cd projeto-sorteio-sindicato
+    cd Projeto_Sorteio_Sindicato
     ```
 3.  **Create and activate a virtual environment:**
     ```bash
