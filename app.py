@@ -7,7 +7,7 @@ from flask import Flask, jsonify, render_template
 app = Flask(__name__)
 
 try:
-    df_completo = pd.read_csv('participantes.csv', dtype=str)
+    df_completo = pd.read_csv('participantes.csv', dtype=str, encoding='utf-8')
 except FileNotFoundError:
     print("ERRO: Arquivo 'participantes.csv' não foi encontrado!")
     df_completo = pd.DataFrame(columns=['matricula', 'nome', 'cpf', 'celular'])
