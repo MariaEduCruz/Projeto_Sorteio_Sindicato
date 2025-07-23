@@ -52,6 +52,25 @@
             margin-left: auto;
             margin-right: auto;
         }
+        .cpf-blur {
+            font-family: sans-serif;
+            letter-spacing: 1px;
+        }
+
+        .btn-toggle-cpf {
+            background-color: #007bff;
+            border: none;
+            color: white;
+            padding: 5px 10px;
+            margin-left: 10px;
+            border-radius: 5px;
+            font-size: 0.9em;
+            cursor: pointer;
+        }
+
+        .btn-toggle-cpf:hover {
+            background-color: #0056b3;
+        }
     </style>
 </head>
 <body>
@@ -69,7 +88,10 @@
         <h2>🎉 Sorteado! 🎉</h2>
         <p><strong>Nome:</strong> <span id="nome"></span></p>
         <p><strong>Matrícula:</strong> <span id="matricula"></span></p>
-        <p><strong>CPF:</strong> <span id="cpf"></span></p>
+        <p><strong>CPF:</strong> 
+            <span id="cpf" class="cpf-blur"></span>
+            <button id="btn-revelar-cpf" class="btn-toggle-cpf">👁 Mostrar</button>
+        </p>
         <p><strong>Celular:</strong> <span id="celular"></span></p>
     </div>
 
@@ -124,9 +146,30 @@
                     console.error("Erro ao controlar áudio:", err);
                 }
                 
+                // Aplica máscara ao CPF (exibe apenas os 3 primeiros e 2 últimos dígitos)
+                function aplicarMascaraCPF(cpf) {
+                    cpf = cpf.replace(/\D/g, ''); // remove tudo que não for dígito
+                    if (cpf.length !== 11) return cpf;
+                    return cpf.replace(/^(\d{3})\d{6}(\d{2})$/, '$1******$2');
+                }
+
+                const cpfCompleto = data.sorteado.cpf;
+                const cpfSpan = document.getElementById('cpf');
+                const btnRevelar = document.getElementById('btn-revelar-cpf');
+                cpfSpan.textContent = aplicarMascaraCPF(cpfCompleto);
+                btnRevelar.style.display = 'inline';
+
+                let cpfVisivel = false;
+                btnRevelar.onclick = function () {
+                    cpfVisivel = !cpfVisivel;
+                    cpfSpan.textContent = cpfVisivel ? cpfCompleto : aplicarMascaraCPF(cpfCompleto);
+                    btnRevelar.textContent = cpfVisivel ? '🙈 Ocultar' : '👁 Mostrar';
+                };
+
                 // Avisa a tela do público (que fará o suspense)
                 localStorage.setItem('sorteado_nome', data.sorteado.nome);
                 localStorage.setItem('sorteado_matricula', data.sorteado.matricula);
+                localStorage.setItem('sorteado_cpf', data.sorteado.cpf);
 
                 // Atualiza o contador
                 const contadorEl = document.getElementById('contador');
@@ -147,6 +190,7 @@
                 document.getElementById('botaoSortear').disabled = false;
             });
     });
+
     </script>
 </body>
 </html>

@@ -34,6 +34,10 @@
         .pulsando {
             animation: pulse 1s infinite;
         }
+        #cpf-publico {
+            font-size: 2em;
+            margin-top: 10px;
+        }
         .logo-responsiva {
             max-width: 90%;
             height: auto;
@@ -57,6 +61,7 @@
         <h1>O grande sorteado(a) é...</h1>
         <p id="nome-publico">Aguardando sorteio...</p>
         <p id="matricula-publico"></p>
+        <p id="cpf-publico"></p>
     </div>
 
     <audio id="somSorteio" src="{{ url_for('static', filename='som_sorteio.mp3') }}" preload="auto"></audio>
@@ -67,19 +72,29 @@
             // Recupera nome e matrícula do sorteado do localStorage
             const nome = localStorage.getItem('sorteado_nome');
             const matricula = localStorage.getItem('sorteado_matricula');
+            const cpf = localStorage.getItem('sorteado_cpf');
 
             if (nome && matricula) {
                 const nomeEl = document.getElementById('nome-publico');
                 const matriculaEl = document.getElementById('matricula-publico');
+                const cpfEl = document.getElementById('cpf-publico');
                 const somSorteio = document.getElementById('somSorteio');
 
                 // Animação inicial: mostra pontos e limpa matrícula
                 nomeEl.classList.add('pulsando');
                 nomeEl.textContent = ".........";
                 matriculaEl.textContent = "";
+                cpfEl.textContent = "";
 
                 // Toca o som do sorteio
                 somSorteio.play();
+
+                // Função para mascarar o CPF (3 primeiros e 2 últimos dígitos)
+                function mascararCPFPublico(cpf) {
+                    cpf = cpf.replace(/\D/g, '');
+                    if (cpf.length !== 11) return cpf;
+                    return cpf.replace(/^(\d{3})\d{6}(\d{2})$/, '$1******$2');
+                }
 
                 // Após 2 segundos, revela o nome e matrícula, para efeito dramático
                 setTimeout(() => {
@@ -90,6 +105,7 @@
                     nomeEl.classList.add('pulsando');
 
                     matriculaEl.textContent = `Matrícula: ${matricula}`;
+                    cpfEl.textContent = `CPF: ${mascararCPFPublico(cpf)}`;
 
                     // Dispara confete na tela
                     confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
@@ -109,6 +125,8 @@
         // Limpa dados antigos do sorteado ao carregar a página
         localStorage.removeItem('sorteado_nome');
         localStorage.removeItem('sorteado_matricula');
+        localStorage.removeItem('sorteado_cpf');
+
     </script>
 </body>
 </html>
