@@ -44,10 +44,18 @@
             font-weight: bold;
             margin: 20px 0;
         }
+        .logo-responsiva {
+            max-width: 50%;
+            height: auto;
+            margin-bottom: 20px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
     </style>
 </head>
 <body>
-    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" style="max-width: 800px; margin-bottom: 20px;">
+    <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" class="logo-responsiva">
 
     <h1>Painel de Controle do Sorteio</h1>
 

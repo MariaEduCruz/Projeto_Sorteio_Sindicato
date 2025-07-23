@@ -34,6 +34,14 @@
         .pulsando {
             animation: pulse 1s infinite;
         }
+        .logo-responsiva {
+            max-width: 90%;
+            height: auto;
+            margin-bottom: 50px;
+            display: block;
+            margin-left: auto;
+            margin-right: auto;
+        }
 
         @keyframes pulse {
             0% { transform: scale(1); }
@@ -44,7 +52,7 @@
 </head>
 <body>
     <div id="container">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" style="max-width: 800px; margin-bottom: 20px;">
+        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" class="logo-responsiva">
         
         <h1>O grande sorteado(a) é...</h1>
         <p id="nome-publico">Aguardando sorteio...</p>
