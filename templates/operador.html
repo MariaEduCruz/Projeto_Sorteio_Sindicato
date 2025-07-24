@@ -31,10 +31,14 @@
             border-radius: 10px; 
             transition: all 0.2s ease-in-out;
         }
-        button:hover {
+        button:hover:not(:disabled) {
             background-color: #218838;
             transform: scale(1.05);
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+        }
+        button:disabled {
+            background-color: #6c757d;
+            cursor: not-allowed;
         }
         h2 {
             color: #007bff;
@@ -71,16 +75,38 @@
         .btn-toggle-cpf:hover {
             background-color: #0056b3;
         }
+         .seletor-sorteio {
+            margin: 20px 0;
+            font-size: 1.5em;
+        }
+        .seletor-sorteio label {
+            margin: 0 15px;
+            cursor: pointer;
+        }
+        .seletor-sorteio input {
+            width: 20px;
+            height: 20px;
+            vertical-align: middle;
+            cursor: pointer;
+        }
+        .info-sorteio { display: none; }
+        .info-sorteio.ativo { display: block; }
+        .historico-container {
+            margin-top: 40px;
+            border-top: 2px solid #ccc;
+            padding-top: 20px;
+            text-align: left;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
     </style>
 </head>
 <body>
     <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" class="logo-responsiva">
 
     <h1>Painel de Controle do Sorteio</h1>
-
-    <div id="contador">
-        Participantes Restantes: {{ restantes }} de {{ total }}
-    </div>
 
     <button id="botaoSortear">SORTEAR AGORA!</button>
 
@@ -95,102 +121,125 @@
         <p><strong>Celular:</strong> <span id="celular"></span></p>
     </div>
 
-    <div style="margin-top: 40px; border-top: 2px solid #ccc; padding-top: 20px; text-align: left; max-width: 600px; margin-left: auto; margin-right: auto;">
-        <h2>Registro de Sorteados</h2>
-        <ul id="lista-historico">
-            {% if historico %}
-                {% for item in historico %}
-                    <li>{{ item }}</li>
-                {% endfor %}
-            {% else %}
-                <p id="msg-sem-historico">Nenhum sorteio realizado ainda.</p>
-            {% endif %}
-        </ul>
+    <div class="seletor-sorteio">
+        <label><input type="radio" name="tipo_sorteio" value="geral" checked> Sorteio Geral</label>
+        <label><input type="radio" name="tipo_sorteio" value="presentes"> Sorteio de Presentes</label>
+    </div>
+
+    <div id="info-geral" class="info-sorteio ativo">
+        <div class="contador">Participantes Restantes: {{ dados_geral.restantes }} de {{ dados_geral.total }}</div>
+        <div class="historico-container">
+            <h2>Registro de Sorteados (Geral)</h2>
+            <ul class="lista-historico">
+                {% for item in dados_geral.historico %}<li>{{ item }}</li>{% endfor %}
+            </ul>
+            {% if not dados_geral.historico %}<p class="msg-sem-historico">Nenhum sorteio realizado ainda.</p>{% endif %}
+        </div>
+    </div>
+    
+    <div id="info-presentes" class="info-sorteio">
+        <div class="contador">Participantes Restantes: {{ dados_presentes.restantes }} de {{ dados_presentes.total }}</div>
+        <div class="historico-container">
+            <h2>Registro de Sorteados (Presentes)</h2>
+            <ul class="lista-historico">
+                {% for item in dados_presentes.historico %}<li>{{ item }}</li>{% endfor %}
+            </ul>
+            {% if not dados_presentes.historico %}<p class="msg-sem-historico">Nenhum sorteio realizado ainda.</p>{% endif %}
+        </div>
     </div>
     
     <audio id="somSorteio" src="{{ url_for('static', filename='som_sorteio.mp3') }}" preload="auto"></audio>
 
     <script>
-    document.getElementById('botaoSortear').addEventListener('click', () => {
-        document.getElementById('botaoSortear').disabled = true;
+        let fullCpf = '';
+        let cpfVisivel = false;
 
-        fetch('/sortear', { method: 'POST' })
-            .then(response => response.json())
-            .then(data => {
-                if (data.erro) {
-                    alert(data.erro);
-                    document.getElementById('botaoSortear').disabled = false;
-                    return;
-                }
-                
-                // Mostra a área do sorteado
-                document.getElementById('area-sorteado').style.display = 'block';
+        // Sua função de máscara (precisa estar aqui para funcionar)
+        function aplicarMascaraCPF(cpf) {
+            if (!cpf) return '';
+            cpf = cpf.replace(/\D/g, ''); // remove tudo que não for dígito
+            if (cpf.length !== 11) return cpf;
+            // Sua máscara era `***.***.***-XX`, vamos usar a do código anterior que era mais funcional
+            return `***.${cpf.substring(4, 7)}.${cpf.substring(8, 11)}-**`;
+        }
 
-                // Preenche com os dados reais do ganhador imediatamente
-                document.getElementById('nome').textContent = data.sorteado.nome;
-                document.getElementById('matricula').textContent = data.sorteado.matricula;
-                document.getElementById('cpf').textContent = data.sorteado.cpf;
-                document.getElementById('celular').textContent = data.sorteado.celular;
+        // MUDANÇA: Lógica do botão de revelar CPF movida para fora do fetch para ser definida apenas uma vez
+        document.getElementById('btn-revelar-cpf').addEventListener('click', () => {
+            cpfVisivel = !cpfVisivel;
+            const cpfSpan = document.getElementById('cpf');
+            const btnRevelar = document.getElementById('btn-revelar-cpf');
+            cpfSpan.textContent = cpfVisivel ? fullCpf : aplicarMascaraCPF(fullCpf);
+            btnRevelar.textContent = cpfVisivel ? '🙈 Ocultar' : '👁 Mostrar';
+        });
 
-                // Toca o som 
-                const somDo_Sorteio = document.getElementById('somSorteio');
+        // Adiciona evento de clique ao botão de sorteio
+        document.getElementById('botaoSortear').addEventListener('click', () => {
+            document.getElementById('botaoSortear').disabled = true;
+            setTimeout(() => { document.getElementById('botaoSortear').disabled = false; }, 6000); // Cooldown de 6s
 
-                // Garante que o som sempre recomece do início
-                try {
-                    somDo_Sorteio.pause();
-                    somDo_Sorteio.currentTime = 0;
-                    somDo_Sorteio.play().catch(err => {
-                        console.warn("Erro ao tentar reproduzir som:", err);
-                    });
-                } catch (err) {
-                    console.error("Erro ao controlar áudio:", err);
-                }
-                
-                // Aplica máscara ao CPF (exibe apenas os 3 primeiros e 2 últimos dígitos)
-                function aplicarMascaraCPF(cpf) {
-                    cpf = cpf.replace(/\D/g, ''); // remove tudo que não for dígito
-                    if (cpf.length !== 11) return cpf;
-                    return cpf.replace(/^(\d{3})\d{6}(\d{2})$/, '$1******$2');
-                }
+            // MUDANÇA: Verifica qual sorteio está ativo para enviar na requisição
+            const tipoSorteio = document.querySelector('input[name="tipo_sorteio"]:checked').value;
 
-                const cpfCompleto = data.sorteado.cpf;
-                const cpfSpan = document.getElementById('cpf');
-                const btnRevelar = document.getElementById('btn-revelar-cpf');
-                cpfSpan.textContent = aplicarMascaraCPF(cpfCompleto);
-                btnRevelar.style.display = 'inline';
+            fetch(`/sortear?tipo=${tipoSorteio}`, { method: 'POST' })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.erro) {
+                        alert(data.erro);
+                        return;
+                    }
+                    
+                    // Mostra a área do sorteado
+                    document.getElementById('area-sorteado').style.display = 'block';
 
-                let cpfVisivel = false;
-                btnRevelar.onclick = function () {
-                    cpfVisivel = !cpfVisivel;
-                    cpfSpan.textContent = cpfVisivel ? cpfCompleto : aplicarMascaraCPF(cpfCompleto);
-                    btnRevelar.textContent = cpfVisivel ? '🙈 Ocultar' : '👁 Mostrar';
-                };
+                    // Preenche com os dados reais do ganhador imediatamente
+                    document.getElementById('nome').textContent = data.sorteado.nome;
+                    document.getElementById('matricula').textContent = data.sorteado.matricula;
+                    document.getElementById('celular').textContent = data.sorteado.celular;
 
-                // Avisa a tela do público (que fará o suspense)
-                localStorage.setItem('sorteado_nome', data.sorteado.nome);
-                localStorage.setItem('sorteado_matricula', data.sorteado.matricula);
-                localStorage.setItem('sorteado_cpf', data.sorteado.cpf);
+                    // Sua lógica para o CPF
+                    fullCpf = data.sorteado.cpf;
+                    cpfVisivel = false; // Garante que o CPF sempre comece mascarado
+                    const cpfSpan = document.getElementById('cpf');
+                    const btnRevelar = document.getElementById('btn-revelar-cpf');
+                    cpfSpan.textContent = aplicarMascaraCPF(fullCpf);
+                    btnRevelar.textContent = '👁 Mostrar';
 
-                // Atualiza o contador
-                const contadorEl = document.getElementById('contador');
-                contadorEl.textContent = `Participantes Restantes: ${data.contagem.restantes} de ${data.contagem.total}`;
+                    // Toca o som (mantendo sua lógica)
+                    const somDo_Sorteio = document.getElementById('somSorteio');
+                    try {
+                        somDo_Sorteio.pause();
+                        somDo_Sorteio.currentTime = 0;
+                        somDo_Sorteio.play().catch(err => { console.warn("Erro ao tentar reproduzir som:", err); });
+                    } catch (err) { console.error("Erro ao controlar áudio:", err); }
+                    
+                    // Avisa a tela do público (que fará o suspense)
+                    localStorage.setItem('sorteado_nome', data.sorteado.nome);
+                    localStorage.setItem('sorteado_matricula', data.sorteado.matricula);
+                    // Garante que o CPF público também seja enviado
+                    localStorage.setItem('sorteado_cpf_publico', data.sorteado.cpf_publico);
 
-                // Adiciona ao histórico
-                const listaHistorico = document.getElementById('lista-historico');
-                const novoItem = document.createElement('li');
-                novoItem.textContent = data.item_historico;
-                listaHistorico.appendChild(novoItem);
-                
-                const msgSemHistorico = document.getElementById('msg-sem-historico');
-                if (msgSemHistorico) {
-                    msgSemHistorico.style.display = 'none';
-                }
+                    // MUDANÇA: Atualiza o contador e o histórico do sorteio correto
+                    const infoAtiva = document.getElementById(`info-${tipoSorteio}`);
+                    infoAtiva.querySelector('.contador').textContent = `Participantes Restantes: ${data.contagem.restantes} de ${data.contagem.total}`;
+                    
+                    const listaHistorico = infoAtiva.querySelector('.lista-historico');
+                    const novoItem = document.createElement('li');
+                    novoItem.textContent = data.item_historico;
+                    listaHistorico.appendChild(novoItem);
+                    
+                    const msgSemHistorico = infoAtiva.querySelector('.msg-sem-historico');
+                    if (msgSemHistorico) { msgSemHistorico.style.display = 'none'; }
+                });
+        });
 
-                // Reabilita o botão para o próximo sorteio
-                document.getElementById('botaoSortear').disabled = false;
+        // MUDANÇA: Lógica para alternar a visualização das informações ao clicar nos botões de seleção
+        document.querySelectorAll('input[name="tipo_sorteio"]').forEach(radio => {
+            radio.addEventListener('change', (event) => {
+                const tipoSelecionado = event.target.value;
+                document.getElementById('info-geral').classList.toggle('ativo', tipoSelecionado === 'geral');
+                document.getElementById('info-presentes').classList.toggle('ativo', tipoSelecionado === 'presentes');
             });
-    });
-
+        });
     </script>
 </body>
 </html>
