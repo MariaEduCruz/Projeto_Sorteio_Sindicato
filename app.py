@@ -27,7 +27,7 @@ dados_sorteio = {
 def carregar_dados(tipo):
     try:
         csv_path = os.path.join(base_path, f'participantes_{tipo}.csv')
-        df = pd.read_csv(csv_path, dtype=str)
+        df = pd.read_csv(csv_path, dtype=str, encoding='utf-8')
 
         dados_sorteio[tipo]['df_completo'] = df
         dados_sorteio[tipo]['participantes_disponiveis'] = df.copy()
