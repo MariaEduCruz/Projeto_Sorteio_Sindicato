@@ -32,9 +32,9 @@
             transition: all 0.2s ease-in-out;
         }
         button:hover:not(:disabled) {
-            background-color: #218838;
-            transform: scale(1.05);
+            transform: scale(1.03);
             box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            filter: brightness(0.9);
         }
         button:disabled {
             background-color: #6c757d;
@@ -43,10 +43,10 @@
         h2 {
             color: #007bff;
         }
-        #contador {
+        .contador {
             font-size: 1.2em;
             font-weight: bold;
-            margin: 20px 0;
+            margin: 30px 0 20px 0;
         }
         .logo-responsiva {
             max-width: 50%;
@@ -60,8 +60,7 @@
             font-family: sans-serif;
             letter-spacing: 1px;
         }
-
-        .btn-toggle-cpf {
+        .btn-revelar-cpf {
             background-color: #007bff;
             border: none;
             color: white;
@@ -71,13 +70,15 @@
             font-size: 0.9em;
             cursor: pointer;
         }
-
-        .btn-toggle-cpf:hover {
-            background-color: #0056b3;
-        }
-         .seletor-sorteio {
+        .seletor-sorteio {
             margin: 20px 0;
             font-size: 1.5em;
+            border-top: 2px solid #ccc;
+            margin-top: 40px;
+            padding-top: 30px;
+            max-width: 600px;
+            margin-left: auto;
+            margin-right: auto;
         }
         .seletor-sorteio label {
             margin: 0 15px;
@@ -100,7 +101,21 @@
             margin-left: auto;
             margin-right: auto;
         }
-
+        .campo-premio { margin-top: 20px; }
+        #input-premio { 
+            font-size: 1.2em; 
+            padding: 10px; 
+            width: 80%; 
+            max-width: 400px; 
+            border-radius: 5px; 
+            border: 1px solid #ccc; 
+        }
+        .btn-relatorio { 
+            font-size: 1em; 
+            padding: 10px 20px; 
+            background-color: #007bff; 
+            margin-top: 10px; 
+        }
     </style>
 </head>
 <body>
@@ -108,7 +123,7 @@
 
     <h1>Painel de Controle do Sorteio</h1>
 
-    <button id="botaoSortear">SORTEAR AGORA!</button>
+    <button id="botaoSortear" style="margin-top: 20px;" >SORTEAR AGORA!</button>
 
     <div id="area-sorteado">
         <h2>🎉 Sorteado! 🎉</h2>
@@ -116,9 +131,14 @@
         <p><strong>Matrícula:</strong> <span id="matricula"></span></p>
         <p><strong>CPF:</strong> 
             <span id="cpf" class="cpf-blur"></span>
-            <button id="btn-revelar-cpf" class="btn-toggle-cpf">👁 Mostrar</button>
+            <button id="btn-revelar-cpf" class="btn-revelar-cpf">👁 Mostrar</button>
         </p>
         <p><strong>Celular:</strong> <span id="celular"></span></p>
+    </div>
+
+    <div class="campo-premio">
+        <label for="input-premio" style="font-size: 1.2em; display: block; margin-bottom: 10px;">Prêmio a ser sorteado:</label>
+        <input type="text" id="input-premio" placeholder="Ex: Cafeteira, Vale-presente...">
     </div>
 
     <div class="seletor-sorteio">
@@ -130,21 +150,19 @@
         <div class="contador">Participantes Restantes: {{ dados_geral.restantes }} de {{ dados_geral.total }}</div>
         <div class="historico-container">
             <h2>Registro de Sorteados (Geral)</h2>
-            <ul class="lista-historico">
-                {% for item in dados_geral.historico %}<li>{{ item }}</li>{% endfor %}
-            </ul>
+            <ul class="lista-historico">{% for item in dados_geral.historico %}<li>{{ item.nome }} (Matrícula: {{ item.matricula }}) - Prêmio: {{ item.premio }}</li>{% endfor %}</ul>
             {% if not dados_geral.historico %}<p class="msg-sem-historico">Nenhum sorteio realizado ainda.</p>{% endif %}
+            <button id="btn-relatorio-geral" class="btn-relatorio">Baixar Relatório (Geral)</button>
         </div>
     </div>
-    
+
     <div id="info-presentes" class="info-sorteio">
         <div class="contador">Participantes Restantes: {{ dados_presentes.restantes }} de {{ dados_presentes.total }}</div>
         <div class="historico-container">
             <h2>Registro de Sorteados (Presentes)</h2>
-            <ul class="lista-historico">
-                {% for item in dados_presentes.historico %}<li>{{ item }}</li>{% endfor %}
-            </ul>
+            <ul class="lista-historico">{% for item in dados_presentes.historico %}<li>{{ item.nome }} (Matrícula: {{ item.matricula }}) - Prêmio: {{ item.premio }}</li>{% endfor %}</ul>
             {% if not dados_presentes.historico %}<p class="msg-sem-historico">Nenhum sorteio realizado ainda.</p>{% endif %}
+            <button id="btn-relatorio-presentes" class="btn-relatorio">Baixar Relatório (Presentes)</button>
         </div>
     </div>
     
@@ -154,16 +172,13 @@
         let fullCpf = '';
         let cpfVisivel = false;
 
-        // Sua função de máscara (precisa estar aqui para funcionar)
         function aplicarMascaraCPF(cpf) {
             if (!cpf) return '';
             cpf = cpf.replace(/\D/g, ''); // remove tudo que não for dígito
             if (cpf.length !== 11) return cpf;
-            // Sua máscara era `***.***.***-XX`, vamos usar a do código anterior que era mais funcional
             return `***.${cpf.substring(4, 7)}.${cpf.substring(8, 11)}-**`;
         }
 
-        // MUDANÇA: Lógica do botão de revelar CPF movida para fora do fetch para ser definida apenas uma vez
         document.getElementById('btn-revelar-cpf').addEventListener('click', () => {
             cpfVisivel = !cpfVisivel;
             const cpfSpan = document.getElementById('cpf');
@@ -177,10 +192,12 @@
             document.getElementById('botaoSortear').disabled = true;
             setTimeout(() => { document.getElementById('botaoSortear').disabled = false; }, 6000); // Cooldown de 6s
 
-            // MUDANÇA: Verifica qual sorteio está ativo para enviar na requisição
+            // Verifica qual sorteio está ativo para enviar na requisição
             const tipoSorteio = document.querySelector('input[name="tipo_sorteio"]:checked').value;
+            // Pega o valor do campo de prêmio
+            const premio = document.getElementById('input-premio').value;
 
-            fetch(`/sortear?tipo=${tipoSorteio}`, { method: 'POST' })
+            fetch(`/sortear?tipo=${tipoSorteio}&premio=${encodeURIComponent(premio)}`, { method: 'POST' })
                 .then(response => response.json())
                 .then(data => {
                     if (data.erro) {
@@ -195,8 +212,9 @@
                     document.getElementById('nome').textContent = data.sorteado.nome;
                     document.getElementById('matricula').textContent = data.sorteado.matricula;
                     document.getElementById('celular').textContent = data.sorteado.celular;
+                    document.getElementById('input-premio').value = '';
 
-                    // Sua lógica para o CPF
+                    // Lógica para o CPF
                     fullCpf = data.sorteado.cpf;
                     cpfVisivel = false; // Garante que o CPF sempre comece mascarado
                     const cpfSpan = document.getElementById('cpf');
@@ -204,7 +222,7 @@
                     cpfSpan.textContent = aplicarMascaraCPF(fullCpf);
                     btnRevelar.textContent = '👁 Mostrar';
 
-                    // Toca o som (mantendo sua lógica)
+                    // Toca o som
                     const somDo_Sorteio = document.getElementById('somSorteio');
                     try {
                         somDo_Sorteio.pause();
@@ -218,7 +236,7 @@
                     // Garante que o CPF público também seja enviado
                     localStorage.setItem('sorteado_cpf_publico', data.sorteado.cpf_publico);
 
-                    // MUDANÇA: Atualiza o contador e o histórico do sorteio correto
+                    // Atualiza o contador e o histórico do sorteio correto
                     const infoAtiva = document.getElementById(`info-${tipoSorteio}`);
                     infoAtiva.querySelector('.contador').textContent = `Participantes Restantes: ${data.contagem.restantes} de ${data.contagem.total}`;
                     
@@ -232,7 +250,15 @@
                 });
         });
 
-        // MUDANÇA: Lógica para alternar a visualização das informações ao clicar nos botões de seleção
+        // Lógica para os botões de download
+        document.getElementById('btn-relatorio-geral').addEventListener('click', () => {
+            window.location.href = '/relatorio?tipo=geral';
+        });
+        document.getElementById('btn-relatorio-presentes').addEventListener('click', () => {
+            window.location.href = '/relatorio?tipo=presentes';
+        });
+
+        // Lógica para alternar a visualização das informações ao clicar nos botões de seleção
         document.querySelectorAll('input[name="tipo_sorteio"]').forEach(radio => {
             radio.addEventListener('change', (event) => {
                 const tipoSelecionado = event.target.value;

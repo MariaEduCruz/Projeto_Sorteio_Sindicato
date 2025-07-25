@@ -1,9 +1,11 @@
 # app.py - VERSÃO FINAL
 
 import os
+import io
 import sys
 import pandas as pd
-from flask import Flask, jsonify, render_template, request
+from datetime import datetime
+from flask import Flask, Response, jsonify, render_template, request
 
 
 # Bloco de código para o PyInstaller encontrar as pastas
@@ -63,6 +65,10 @@ def tela_publica():
 def sortear():
     """Realiza o sorteio de um participante e atualiza o histórico."""
     tipo_sorteio = request.args.get('tipo', 'geral')
+    premio = request.args.get('premio', 'Brinde não especificado')
+    if not premio: # Garante que o prêmio não seja vazio
+        premio = 'Brinde não especificado'
+
     if tipo_sorteio not in dados_sorteio:
         return jsonify({"erro": "Tipo de sorteio inválido."}), 400
 
@@ -77,20 +83,53 @@ def sortear():
         cpf_completo = sorteado_dados['cpf']
         sorteado_dados['cpf_publico'] = f"{cpf_completo[:3]}.***.***-{cpf_completo[-2:]}"
         
-        item_historico = f"{sorteado_dados['nome']} (Matrícula: {sorteado_dados['matricula']})"
+        item_historico = {
+            "nome": sorteado_dados['nome'],
+            "matricula": sorteado_dados['matricula'],
+            "premio": premio
+        }
         sorteio_atual['historico'].append(item_historico)
         
+        item_historico_texto = f"{item_historico['nome']} (Matrícula: {item_historico['matricula']}) - Prêmio: {item_historico['premio']}"
+
         resposta = {
             "sorteado": sorteado_dados,
             "contagem": {
                 "restantes": len(sorteio_atual['participantes_disponiveis']),
                 "total": sorteio_atual['total']
             },
-            "item_historico": item_historico
+            "item_historico": item_historico_texto
         }
         return jsonify(resposta)
     else:
         return jsonify({"erro": f"Todos os participantes do sorteio '{tipo_sorteio}' já foram sorteados!"}), 400
+
+# Gerar Relatório
+@app.route('/relatorio')
+def gerar_relatorio():
+    tipo_sorteio = request.args.get('tipo', 'geral')
+    historico = dados_sorteio[tipo_sorteio]['historico']
+
+    if not historico:
+        return "Nenhum sorteio realizado para gerar relatório.", 404
+
+    # Usa o Pandas para criar um DataFrame a partir do nosso histórico
+    df_relatorio = pd.DataFrame(historico)
+    
+    # Prepara o nome do arquivo com data e hora
+    timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+    nome_arquivo = f"relatorio_sorteio_{tipo_sorteio}_{timestamp}.xlsx"
+
+    output = io.BytesIO()
+    df_relatorio.to_excel(output, index=False, sheet_name='Sorteados')
+    output.seek(0)
+
+    # Cria e retorna a resposta que força o download no navegador
+    return Response(
+        output,
+        mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+        headers={"Content-Disposition": f"attachment;filename={nome_arquivo}"}
+    )
 
 # Inicia o servidor
 if __name__ == '__main__':
