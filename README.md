@@ -45,6 +45,7 @@ A web application developed in Python with the Flask framework to conduct intera
 5.  **Install the required dependencies from the `requirements.txt` file:**
     ```bash
     pip install -r requirements.txt
+    pip install openpyxl
     ```
 6.  **Run the application:**
     ```bash

@@ -45,6 +45,7 @@ Aplicação web desenvolvida em Python com o framework Flask para realizar sorte
 5.  **Instale as dependências necessárias a partir do arquivo `requirements.txt`:**
     ```bash
     pip install -r requirements.txt
+    pip install openpyxl
     ```
 6.  **Execute a aplicação:**
     ```bash
