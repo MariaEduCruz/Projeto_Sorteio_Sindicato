@@ -2,70 +2,154 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <title>Sorteio - Resultado</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sorteio ao Vivo | Sindicato</title>
+    <meta name="description" content="Acompanhe ao vivo o sorteio oficial do Sindicato, com revelação do ganhador e do prêmio em tempo real.">
+    <meta name="robots" content="noindex, nofollow">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@600;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
-    
+
     <style>
-        body { 
-            font-family: sans-serif; 
-            text-align: center; 
-            background: linear-gradient(135deg, #e0f7fa, #b2ebf2); 
-            color: #003366; 
-            display: flex; 
-            justify-content: center; 
-            align-items: center;
-            margin: 0; 
-            min-height: 100vh;
+        :root {
+            --azul: #2f5fff;
+            --texto: #05264d;
+            --texto-suave: #37507a;
+            font-family: 'Inter', sans-serif;
         }
-        #container { 
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.15);
-            max-width: 900px;
+
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            font-family: 'Inter', sans-serif;
+            text-align: center;
+            background: radial-gradient(circle at 50% 0%, #e7f3ff 0%, #cfe4fb 45%, #a9cff0 100%);
+            color: var(--texto);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow-x: hidden;
+        }
+
+        #container {
+            background: rgba(255, 255, 255, 0.55);
+            backdrop-filter: blur(6px);
+            border-radius: 28px;
+            box-shadow: 0 30px 60px -20px rgba(5, 38, 77, 0.25);
+            max-width: 980px;
             width: 90%;
             margin: 40px auto;
+            padding: 44px 40px;
+            border: 1px solid rgba(255, 255, 255, 0.6);
         }
-        h1 { 
-            font-size: 3em; 
-            margin: 20px 0;
-        }
-        #nome-publico {
-             font-size: 5em; 
-             font-weight: bold; 
-             color: #d32f2f;
-             margin: 30px 0;
-            line-height: 1.1;
-        }
-        #matricula-publico { 
-            font-size: 2.5em; 
-            margin: 10px 0; 
-        }
-        #cpf-publico {
-            font-size: 1.5em;
-            margin-top: 10px;
-        }
+
         .logo-responsiva {
-            max-width: 80%;
+            max-width: 460px;
             height: auto;
-            margin-bottom: 20px;
-            display: block;
-            margin-left: auto;
-            margin-right: auto;
+            margin-bottom: 6px;
         }
-        .pulsando {
-            animation: pulse 1s infinite;
+
+        /* --- Prêmio: fica no topo, logo abaixo da logo, e é o destaque principal --- */
+        #premio-topo {
+            margin: 10px 0 18px;
+            padding-bottom: 26px;
+            border-bottom: 2px dashed rgba(5, 38, 77, 0.2);
+            display: none;
         }
+
+        #premio-topo.visivel { display: block; }
+
+        #premio-topo .rotulo {
+            font-size: 1.1em;
+            font-weight: 700;
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            color: var(--azul);
+            margin-bottom: 10px;
+        }
+
+        #premio-topo-imagem {
+            max-width: 380px;
+            max-height: 380px;
+            width: 100%;
+            border-radius: 20px;
+            box-shadow: 0 18px 40px -12px rgba(5, 38, 77, 0.4);
+            display: none;
+            object-fit: cover;
+            margin-bottom: 16px;
+        }
+
+        #premio-topo-nome {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.6em;
+            font-weight: 800;
+            color: var(--texto);
+            line-height: 1.15;
+            margin: 0;
+        }
+
+        h1 {
+            font-family: 'Poppins', sans-serif;
+            font-size: 2.1em;
+            font-weight: 700;
+            margin: 8px 0 8px;
+            color: var(--texto);
+        }
+
+        #nome-publico {
+            font-family: 'Poppins', sans-serif;
+            font-size: 4em;
+            font-weight: 800;
+            color: #c0143c;
+            margin: 20px 0;
+            line-height: 1.1;
+            text-shadow: 0 4px 12px rgba(192, 20, 60, 0.15);
+        }
+
+        #matricula-publico {
+            font-size: 1.9em;
+            font-weight: 600;
+            margin: 6px 0;
+            color: var(--texto-suave);
+        }
+
+        #cpf-publico {
+            font-size: 1.2em;
+            margin-top: 4px;
+            color: var(--texto-suave);
+        }
+
+        .pulsando { animation: pulse 1s infinite; }
         @keyframes pulse {
             0% { transform: scale(1); }
             50% { transform: scale(1.05); }
             100% { transform: scale(1); }
+        }
+
+        @media (max-width: 640px) {
+            #premio-topo-nome { font-size: 1.8em; }
+            #premio-topo-imagem { max-width: 260px; max-height: 260px; }
+            #nome-publico { font-size: 2.6em; }
+            h1 { font-size: 1.5em; }
+            #container { padding: 28px 18px; }
         }
     </style>
 </head>
 <body>
     <div id="container">
         <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" class="logo-responsiva">
-        
+
+        <div id="premio-topo">
+            <p class="rotulo">🎁 Prêmio desta rodada</p>
+            <img id="premio-topo-imagem" alt="Imagem do prêmio">
+            <p id="premio-topo-nome"></p>
+        </div>
+
         <h1>O grande sorteado(a) é...</h1>
-        <p id="nome-publico">Aguardando<br>sorteio...</p>
+        <p id="nome-publico" aria-live="polite">Aguardando<br>sorteio...</p>
         <p id="matricula-publico"></p>
         <p id="cpf-publico"></p>
     </div>
@@ -73,70 +157,115 @@
     <audio id="somSorteio" src="{{ url_for('static', filename='som_sorteio.mp3') }}" preload="auto"></audio>
 
     <script>
-        // Variáveis de controle para a animação
+        // Duração do suspense (som + espera antes de revelar o nome), em milissegundos
+        const DURACAO_SUSPENSE_MS = 4000;
+
         let suspenseTimeoutId = null;
         let pulseTimeoutId = null;
 
-        // Função responsável por revelar o sorteado na tela pública
+        function mostrarPremioTopo(nome, imagem) {
+            const bloco = document.getElementById('premio-topo');
+            const nomeEl = document.getElementById('premio-topo-nome');
+            const imagemEl = document.getElementById('premio-topo-imagem');
+
+            if (!nome) {
+                bloco.classList.remove('visivel');
+                return;
+            }
+
+            bloco.classList.add('visivel');
+            nomeEl.textContent = nome;
+            if (imagem) {
+                imagemEl.src = imagem;
+                imagemEl.style.display = 'inline-block';
+            } else {
+                imagemEl.style.display = 'none';
+            }
+        }
+
+        // Ao clicar em "Definir Prêmio" no painel do operador, atualiza aqui em tempo real
+        function tratarPremioDefinido() {
+            const nome = localStorage.getItem('premio_definido_nome');
+            const imagem = localStorage.getItem('premio_definido_imagem');
+            mostrarPremioTopo(nome, imagem);
+        }
+
+        // Ao iniciar uma nova rodada, tira o ganhador anterior da tela e volta à frase padrão
+        function resetarSorteado() {
+            clearTimeout(suspenseTimeoutId);
+            clearTimeout(pulseTimeoutId);
+
+            const nomeEl = document.getElementById('nome-publico');
+            const somSorteio = document.getElementById('somSorteio');
+
+            somSorteio.pause();
+            somSorteio.currentTime = 0;
+
+            nomeEl.classList.remove('pulsando');
+            nomeEl.innerHTML = 'Aguardando<br>sorteio...';
+            document.getElementById('matricula-publico').textContent = '';
+            document.getElementById('cpf-publico').textContent = '';
+        }
+
         function fazerRevelacao() {
-            // Recupera nome e matrícula do sorteado do localStorage
             const nome = localStorage.getItem('sorteado_nome');
             const matricula = localStorage.getItem('sorteado_matricula');
             const cpfPublico = localStorage.getItem('sorteado_cpf_publico');
 
-            if (nome && matricula) {
-                const nomeEl = document.getElementById('nome-publico');
-                const matriculaEl = document.getElementById('matricula-publico');
-                const cpfEl = document.getElementById('cpf-publico');
-                const somSorteio = document.getElementById('somSorteio');
+            if (!nome || !matricula) return;
 
-                // Reseta som e animação
+            const nomeEl = document.getElementById('nome-publico');
+            const matriculaEl = document.getElementById('matricula-publico');
+            const cpfEl = document.getElementById('cpf-publico');
+            const somSorteio = document.getElementById('somSorteio');
+
+            somSorteio.pause();
+            somSorteio.currentTime = 0;
+            nomeEl.classList.remove('pulsando');
+
+            nomeEl.classList.add('pulsando');
+            nomeEl.textContent = '.........';
+            matriculaEl.textContent = '';
+            cpfEl.textContent = '';
+
+            somSorteio.play().catch(err => console.warn('Erro ao tocar som:', err));
+
+            clearTimeout(suspenseTimeoutId);
+            clearTimeout(pulseTimeoutId);
+
+            suspenseTimeoutId = setTimeout(() => {
                 somSorteio.pause();
                 somSorteio.currentTime = 0;
-                nomeEl.classList.remove('pulsando');
 
-                // Animação inicial: mostra pontos e limpa matrícula
+                nomeEl.textContent = nome;
                 nomeEl.classList.add('pulsando');
-                nomeEl.textContent = ".........";
-                matriculaEl.textContent = "";
-                cpfEl.textContent = "";
+                matriculaEl.textContent = `Matrícula: ${matricula}`;
+                if (cpfPublico) cpfEl.textContent = `CPF: ${cpfPublico}`;
 
-                // Toca o som do sorteio
-                somSorteio.play();
+                confetti({ particleCount: 220, spread: 100, origin: { y: 0.6 } });
 
-                // Após 2 segundos, revela o nome e matrícula, para efeito dramático
-                suspenseTimeoutId = setTimeout(() => {
-                    somSorteio.pause();
-                    somSorteio.currentTime = 0;
-
-                    nomeEl.textContent = nome;
-                    nomeEl.classList.add('pulsando');
-
-                    matriculaEl.textContent = `Matrícula: ${matricula}`;
-                    
-                    if (cpfPublico) {
-                        cpfEl.textContent = `CPF: ${cpfPublico}`;
-                    }
-
-                    // Dispara confete na tela
-                    confetti({ particleCount: 200, spread: 100, origin: { y: 0.6 } });
-
-                    // Remove animação de pulsar após mais 2 segundos
-                    pulseTimeoutId = setTimeout(() => {
-                        nomeEl.classList.remove('pulsando');
-                    }, 2000);
-
-                }, 2000);
-            }
+                pulseTimeoutId = setTimeout(() => nomeEl.classList.remove('pulsando'), 2000);
+            }, DURACAO_SUSPENSE_MS);
         }
 
-        // Escuta alterações no localStorage para atualizar a tela pública automaticamente
-        window.addEventListener('storage', fazerRevelacao);
+        // Escuta mudanças feitas pelo operador em outra aba/janela
+        window.addEventListener('storage', (event) => {
+            if (event.key === 'premio_definido_ts') tratarPremioDefinido();
+            if (event.key === 'sorteado_ts') fazerRevelacao();
+            if (event.key === 'resetar_sorteado_ts') resetarSorteado();
+        });
 
-        // Limpa dados antigos do sorteado ao carregar a página
+        // Ao abrir/recarregar o telão, busca o prêmio já selecionado no servidor
+        fetch('/premio-atual')
+            .then(response => response.json())
+            .then(data => mostrarPremioTopo(data.premio.nome, data.premio.imagem))
+            .catch(() => {});
+
         localStorage.removeItem('sorteado_nome');
         localStorage.removeItem('sorteado_matricula');
         localStorage.removeItem('sorteado_cpf_publico');
+        localStorage.removeItem('sorteado_premio_nome');
+        localStorage.removeItem('sorteado_premio_imagem');
     </script>
 </body>
 </html>
