@@ -15,110 +15,202 @@
         :root {
             --azul: #2f5fff;
             --texto: #05264d;
-            --texto-suave: #37507a;
+            --texto-suave: #2c4470;
             font-family: 'Inter', sans-serif;
         }
 
         * { box-sizing: border-box; }
 
+        html, body {
+            height: 100%;
+            overflow: hidden; /* nunca rola, independente da tela */
+        }
+
         body {
             margin: 0;
             font-family: 'Inter', sans-serif;
-            text-align: center;
             background: radial-gradient(circle at 50% 0%, #e7f3ff 0%, #cfe4fb 45%, #a9cff0 100%);
             color: var(--texto);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
         }
 
+        /* Layout ocupa a tela inteira, sem card/caixa central -- usa bem as laterais */
         #container {
-            background: rgba(255, 255, 255, 0.55);
-            backdrop-filter: blur(6px);
-            border-radius: 28px;
-            box-shadow: 0 30px 60px -20px rgba(5, 38, 77, 0.25);
-            max-width: 980px;
-            width: 90%;
-            margin: 40px auto;
-            padding: 44px 40px;
-            border: 1px solid rgba(255, 255, 255, 0.6);
+            width: 100vw;
+            height: 100vh;
+            padding: 2vh 3vw;
+            display: flex;
+            flex-direction: column;
         }
 
-        .logo-responsiva {
-            max-width: 460px;
+        /* --- Header: logos nos dois cantos, telefones centralizados entre elas --- */
+        header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 2vw;
+        }
+
+        .logo-lateral {
+            width: clamp(360px, 13vh, 360px);
             height: auto;
-            margin-bottom: 6px;
+            flex-shrink: 0;
         }
 
-        /* --- Prêmio: fica no topo, logo abaixo da logo, e é o destaque principal --- */
+        /* --- Telefones: agora no topo, entre as duas logos, com efeito de "pop-up" pulsando --- */
+        #aviso-contato {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 1vh;
+            background: rgba(255, 255, 255, 0.55);
+            border: 2px solid rgba(192, 20, 60, 0.35);
+            border-radius: 18px;
+            padding: 1.4vh 1.6vw;
+            animation: pulsar-aviso 2.2s ease-in-out infinite;
+        }
+
+        @keyframes pulsar-aviso {
+            0%, 100% {
+                transform: scale(1);
+                box-shadow: 0 0 0 0 rgba(192, 20, 60, 0.25);
+            }
+            50% {
+                transform: scale(1.025);
+                box-shadow: 0 0 0 14px rgba(192, 20, 60, 0);
+            }
+        }
+
+        .aviso-titulo {
+            font-size: clamp(1.8em, 2.3vh, 1.3em);
+            font-weight: 900;
+            color: var(--texto);
+            text-align: center;
+            margin: 0;
+        }
+
+        .aviso-titulo strong { color: #c0143c; }
+
+        .telefones {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 1.6vw;
+        }
+
+        .telefone {
+            font-family: 'Poppins', sans-serif;
+            font-weight: 800;
+            font-size: clamp(1.15em, 2.6vh, 1.6em);
+            color: var(--texto);
+            background: rgba(255, 255, 255, 0.8);
+            border: 2px solid rgba(47, 95, 255, 0.35);
+            border-radius: 12px;
+            padding: 0.7vh 1.4vw;
+            white-space: nowrap;
+            box-shadow: 0 6px 14px -8px rgba(5, 38, 77, 0.25);
+        }
+
+        /* --- Main: prêmio à esquerda, sorteado à direita, descidos e bem grandes --- */
+        main {
+            flex: 1;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 4vw;
+            min-height: 0;
+        }
+
+        #coluna-premio {
+            flex: 0 0 42%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 100%;
+        }
+
         #premio-topo {
-            margin: 10px 0 18px;
-            padding-bottom: 26px;
-            border-bottom: 2px dashed rgba(5, 38, 77, 0.2);
             display: none;
+            flex-direction: column;
+            align-items: center;
+            gap: 1.4vh;
         }
 
-        #premio-topo.visivel { display: block; }
+        #premio-topo.visivel { display: flex; }
 
         #premio-topo .rotulo {
-            font-size: 1.1em;
+            font-size: clamp(1.8em, 2.4vh, 1.4em);
             font-weight: 700;
             letter-spacing: 2px;
             text-transform: uppercase;
             color: var(--azul);
-            margin-bottom: 10px;
+            margin: 0;
         }
 
         #premio-topo-imagem {
-            max-width: 380px;
-            max-height: 380px;
-            width: 100%;
+            width: auto;
+            height: auto;
+            max-width: 100%;
+            max-height: 42vh;
             border-radius: 20px;
-            box-shadow: 0 18px 40px -12px rgba(5, 38, 77, 0.4);
+            box-shadow: 0 16px 34px -12px rgba(5, 38, 77, 0.4);
             display: none;
-            object-fit: cover;
-            margin-bottom: 16px;
+            object-fit: contain;
         }
 
         #premio-topo-nome {
             font-family: 'Poppins', sans-serif;
-            font-size: 2.6em;
+            font-size: clamp(2em, 5.2vh, 3.2em);
             font-weight: 800;
             color: var(--texto);
             line-height: 1.15;
             margin: 0;
         }
 
+        /* --- Coluna direita: revelação do sorteado --- */
+        #coluna-sorteado {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            height: 100%;
+        }
+
         h1 {
             font-family: 'Poppins', sans-serif;
-            font-size: 2.1em;
+            font-size: clamp(1.8em, 3.8vh, 2.3em);
             font-weight: 700;
-            margin: 8px 0 8px;
+            margin: 0 0 1vh;
             color: var(--texto);
         }
 
         #nome-publico {
             font-family: 'Poppins', sans-serif;
-            font-size: 4em;
+            font-size: clamp(2.8em, 9vh, 5.2em);
             font-weight: 800;
             color: #c0143c;
-            margin: 20px 0;
-            line-height: 1.1;
-            text-shadow: 0 4px 12px rgba(192, 20, 60, 0.15);
+            margin: 1vh 0;
+            line-height: 1.08;
+            text-shadow: 0 4px 14px rgba(192, 20, 60, 0.18);
         }
 
+        /* --- Matrícula: agora em evidência, grande e vermelha --- */
         #matricula-publico {
-            font-size: 1.9em;
-            font-weight: 600;
-            margin: 6px 0;
-            color: var(--texto-suave);
+            font-family: 'Poppins', sans-serif;
+            font-size: clamp(1.8em, 4.2vh, 2.4em);
+            font-weight: 800;
+            margin: 0.8vh 0;
+            color: #c0143c;
         }
 
+        /* CPF sobe um pouco, mas continua discreto -- não é o foco */
         #cpf-publico {
-            font-size: 1.2em;
-            margin-top: 4px;
+            font-size: clamp(1.4em, 2.4vh, 1.4em);
+            margin-top: 0.4vh;
             color: var(--texto-suave);
         }
 
@@ -129,29 +221,46 @@
             100% { transform: scale(1); }
         }
 
-        @media (max-width: 640px) {
-            #premio-topo-nome { font-size: 1.8em; }
-            #premio-topo-imagem { max-width: 260px; max-height: 260px; }
-            #nome-publico { font-size: 2.6em; }
-            h1 { font-size: 1.5em; }
-            #container { padding: 28px 18px; }
+        @media (max-width: 900px) {
+            main { flex-direction: column; gap: 2vh; }
+            #coluna-premio { flex: 0 0 auto; }
+            header { flex-wrap: wrap; }
         }
     </style>
 </head>
 <body>
     <div id="container">
-        <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" class="logo-responsiva">
+        <header>
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" class="logo-lateral">
 
-        <div id="premio-topo">
-            <p class="rotulo">🎁 Prêmio desta rodada</p>
-            <img id="premio-topo-imagem" alt="Imagem do prêmio">
-            <p id="premio-topo-nome"></p>
-        </div>
+            <div id="aviso-contato">
+                <p class="aviso-titulo">⏰ Sorteado(a) ausente? Ligue em até <strong>1 hora</strong> para retirar o prêmio! Caso o associado não entre em contato, haverá <strong>novo sorteio</strong>:</p>
+                <div class="telefones">
+                    <span class="telefone">📞 (21) 98900-1557</span>
+                    <span class="telefone">📞 (21) 99280-5710</span>
+                    <span class="telefone">📞 (21) 99284-0644</span>
+                </div>
+            </div>
 
-        <h1>O grande sorteado(a) é...</h1>
-        <p id="nome-publico" aria-live="polite">Aguardando<br>sorteio...</p>
-        <p id="matricula-publico"></p>
-        <p id="cpf-publico"></p>
+            <img src="{{ url_for('static', filename='logo.png') }}" alt="Logo do Sindicato" class="logo-lateral">
+        </header>
+
+        <main>
+            <div id="coluna-premio">
+                <div id="premio-topo">
+                    <p class="rotulo">🎁 Prêmio desta rodada</p>
+                    <img id="premio-topo-imagem" alt="Imagem do prêmio">
+                    <p id="premio-topo-nome"></p>
+                </div>
+            </div>
+
+            <div id="coluna-sorteado">
+                <h1>O grande sorteado(a) é...</h1>
+                <p id="nome-publico" aria-live="polite">Aguardando<br>sorteio...</p>
+                <p id="matricula-publico"></p>
+                <p id="cpf-publico"></p>
+            </div>
+        </main>
     </div>
 
     <audio id="somSorteio" src="{{ url_for('static', filename='som_sorteio.mp3') }}" preload="auto"></audio>
@@ -177,7 +286,7 @@
             nomeEl.textContent = nome;
             if (imagem) {
                 imagemEl.src = imagem;
-                imagemEl.style.display = 'inline-block';
+                imagemEl.style.display = 'block';
             } else {
                 imagemEl.style.display = 'none';
             }
